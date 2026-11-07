@@ -1,0 +1,49 @@
+## Why it matters
+
+Real tables are wide. An `orders` table in production might have 80 columns, and a report needs four of them. Picking columns is the most basic thing SQL does, and naming the results well is what makes a query readable to the next person.
+
+<JsBridge>
+
+```js
+// map: same number of items, new shape
+customers.map(c => ({
+  name: c.name,
+  country: c.country,
+}));
+```
+
+```sql
+-- SELECT: same number of rows, new shape
+SELECT name, country
+FROM customers;
+```
+
+<Breaks>
+`map` runs your function in order, one element at a time. SQL has no "one at a time" you can see: it describes the output for **every row at once**, and the engine is free to process rows in any order, or in parallel.
+</Breaks>
+
+</JsBridge>
+
+## Columns, not rows
+
+<Worked id="rows" />
+
+## Computing new columns
+
+You can put an expression in the `SELECT` list, and SQL evaluates it for every row. `AS` gives the result a name.
+
+<Worked id="computed" />
+
+<Callout kind="dialect">
+`AS` is optional: `price * 1.18 price_with_vat` also works. Write it anyway. It makes the query easier to read, and a missing comma can't quietly turn into an alias.
+</Callout>
+
+## Your turn
+
+<Exercise id="name-price" />
+
+<Exercise id="cents" />
+
+<Callout kind="de">
+Renaming columns is a big part of the **staged** layer in a pipeline. Sources call the same thing `cust_id`, `CustomerID` and `customer`. Staging models give everything one consistent snake_case name, so every later query can rely on it.
+</Callout>

@@ -1,0 +1,72 @@
+.choice {
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--s2);
+}
+.choice legend {
+  font-weight: 500;
+  margin-bottom: var(--s2);
+}
+.seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  padding: 3px;
+  gap: 3px;
+  width: fit-content;
+}
+.segItem {
+  padding: var(--s1) var(--s4);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--muted);
+  transition: color var(--dur-hover) var(--ease-inout), background-color var(--dur-hover) var(--ease-inout);
+}
+.segItem:has(input:focus-visible) {
+  outline: 2px solid var(--track);
+}
+.segItem input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.segOn {
+  background: var(--surface-2);
+  color: var(--text);
+}
+.field {
+  display: grid;
+  gap: var(--s2);
+  font-weight: 500;
+  width: fit-content;
+}
+.input {
+  min-height: 40px;
+  padding: 0 var(--s3);
+  border-radius: var(--radius);
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  width: 10rem;
+}
+.input:focus {
+  border-color: var(--track);
+  outline: none;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  align-items: center;
+}
+.note {
+  color: var(--muted);
+}
+.ok {
+  color: var(--mastery);
+}
+.bad {
+  color: var(--error);
+}

@@ -1,0 +1,69 @@
+## Why it matters
+
+"Top 10 products", "latest 100 events" and "which statuses exist?" come up in almost every analysis. They're also where queries quietly become **non-deterministic**: two runs of the same query return different rows. In a pipeline that's a real bug, because reruns should give the same answer.
+
+<JsBridge>
+
+```js
+[...products]
+  .sort((a, b) => b.price - a.price)
+  .slice(0, 3);
+
+[...new Set(customers.map(c => c.country))];
+```
+
+```sql
+SELECT name, price FROM products
+ORDER BY price DESC
+LIMIT 3;
+
+SELECT DISTINCT country FROM customers;
+```
+
+<Breaks>
+JavaScript's `sort` is stable: equal items keep their original order. SQL makes **no such promise**, because a table has no "original order". If two rows tie, either can come first, so add a tie-breaker column whenever the exact order matters.
+</Breaks>
+
+</JsBridge>
+
+## ORDER BY and LIMIT
+
+<Worked id="top3" />
+
+<Worked id="multi-sort" />
+
+## DISTINCT
+
+<Worked id="distinct" />
+
+## The order you write vs. the order it runs
+
+You **write** clauses in a fixed order, but the database **evaluates** them in a different one:
+
+| Written | Evaluated |
+|---|---|
+| 1. SELECT | 1. FROM: pick the table |
+| 2. FROM | 2. WHERE: filter rows |
+| 3. WHERE | 3. SELECT: compute output columns |
+| 4. ORDER BY | 4. ORDER BY: sort |
+| 5. LIMIT | 5. LIMIT: cut |
+
+This explains two puzzles: an alias from `SELECT` **works in ORDER BY** but **fails in WHERE**, and `LIMIT` always applies to the already-sorted result.
+
+<Parsons id="clause-order" />
+
+## Your turn
+
+<Exercise id="top5-products" />
+
+<Exercise id="statuses" />
+
+<Exercise id="latest-orders" />
+
+<Callout kind="dialect">
+NULLs sort **last** in DuckDB by default, but PostgreSQL puts them **first** when sorting `DESC`. If it matters, say so explicitly: `ORDER BY price DESC NULLS LAST`.
+</Callout>
+
+<Callout kind="de">
+"Latest row per key" is one of the most common pipeline tasks. Examples: the newest address per customer, or the last status per order. `ORDER BY ... LIMIT 1` handles a single key. Doing it for **every** key at once needs window functions, which are module S6.
+</Callout>

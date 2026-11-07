@@ -1,0 +1,60 @@
+.predict {
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--s3);
+  min-width: 0;
+}
+.predict > button {
+  justify-self: start;
+}
+.legend {
+  padding: 0;
+  margin-bottom: var(--s3);
+  font-weight: 500;
+}
+.options {
+  display: grid;
+  gap: var(--s2);
+}
+.option {
+  display: flex;
+  gap: var(--s3);
+  align-items: flex-start;
+  padding: var(--s3) var(--s4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color var(--dur-hover) var(--ease-inout), background-color var(--dur-hover) var(--ease-inout);
+}
+.option:hover {
+  border-color: var(--line-strong);
+}
+.option:has(input:checked) {
+  border-color: var(--track);
+  background: color-mix(in srgb, var(--track) 8%, transparent);
+}
+.option input {
+  margin-top: 0.3em;
+  accent-color: var(--track);
+}
+.option code {
+  font-size: 0.9em;
+}
+.right {
+  border-color: var(--mastery) !important;
+}
+.wrong {
+  border-color: var(--error) !important;
+}
+.gotIt {
+  color: var(--mastery);
+}
+.notQuite {
+  color: var(--de);
+}
+.gotIt span,
+.notQuite span {
+  color: var(--text);
+}

@@ -1,0 +1,226 @@
+id: sql.s1.where
+title: Filtering rows with WHERE
+summary: Keep only the rows you need — with comparisons, AND/OR, IN, BETWEEN, LIKE — and meet NULL, the value that isn't equal to anything.
+track: sql
+module: S1
+order: 2
+version: 1
+estMinutes: 25
+where: browser
+objectives:
+  - Filter rows with comparisons, AND, OR and NOT
+  - Use IN, BETWEEN and LIKE as shorthands
+  - Find missing values with IS NULL (and explain why = NULL never works)
+
+worked:
+  india:
+    lang: sql
+    code: |
+      SELECT name, city
+      FROM customers
+      WHERE country = 'India';
+    predict:
+      prompt: How many customers will this return?
+      options:
+        - '4'
+        - '5'
+        - '20'
+      answer: 1
+      explain: Five customers have country 'India'. WHERE tests each row and keeps only those where the condition is true.
+  combined:
+    lang: sql
+    code: |
+      SELECT order_id, status, amount
+      FROM orders
+      WHERE status = 'delivered'
+        AND amount > 100;
+    note: Both conditions must be true. 8 delivered orders are over 100.
+  shorthands:
+    lang: sql
+    code: |
+      SELECT name, country, signup_date
+      FROM customers
+      WHERE country IN ('France', 'Germany', 'Italy')
+        AND signup_date BETWEEN DATE '2024-04-01' AND DATE '2024-06-30'
+        AND name LIKE '%a%';
+    note: "`IN (...)` = several ORs. `BETWEEN a AND b` includes both ends. In `LIKE`, `%` matches any run of characters and `_` exactly one."
+  null-trap:
+    lang: sql
+    code: |
+      SELECT name, city
+      FROM customers
+      WHERE city = NULL;
+    predict:
+      prompt: Two customers have no city (NULL). What does this query return?
+      options:
+        - Those two customers
+        - No rows at all
+        - An error
+      answer: 1
+      explain: NULL means *unknown*. Is an unknown city equal to unknown? The answer is unknown — not true — so no row passes. Use `city IS NULL` instead.
+
+exercises:
+  two-countries:
+    lang: sql
+    prompt: |
+      Find the customers who live in **Germany** or **France**. Show `name` and `country`.
+    starter: |
+      SELECT name, country
+      FROM customers
+      WHERE
+    solution: SELECT name, country FROM customers WHERE country IN ('Germany', 'France');
+    alternates:
+      - SELECT name, country FROM customers WHERE country = 'Germany' OR country = 'France';
+      - SELECT name, country FROM customers WHERE country = 'France' OR country = 'Germany'
+    wrong:
+      - SELECT name, country FROM customers WHERE country = 'Germany' AND country = 'France';
+      - SELECT name, country FROM customers WHERE country = 'Germany';
+      - SELECT name, country FROM customers;
+    hints:
+      - A customer can only live in one country, so "Germany or France" means either condition being true.
+      - Use OR between two comparisons — or IN with a list.
+      - WHERE country IN ('Germany', ...)
+  big-open-orders:
+    lang: sql
+    prompt: |
+      Find orders that are **not cancelled** and worth **at least 50**.
+      Show `order_id`, `status` and `amount`.
+    starter: |
+      SELECT order_id, status, amount
+      FROM orders
+      WHERE
+    solution: SELECT order_id, status, amount FROM orders WHERE status <> 'cancelled' AND amount >= 50;
+    alternates:
+      - SELECT order_id, status, amount FROM orders WHERE status != 'cancelled' AND amount >= 50;
+      - SELECT order_id, status, amount FROM orders WHERE NOT status = 'cancelled' AND NOT amount < 50;
+    wrong:
+      - SELECT order_id, status, amount FROM orders WHERE status <> 'cancelled' AND amount > 50;
+      - SELECT order_id, status, amount FROM orders WHERE amount >= 50;
+      - SELECT order_id, status, amount FROM orders WHERE status <> 'cancelled' OR amount >= 50;
+    hints:
+      - Two conditions, both must hold — that's AND.
+      - '"Not equal" is `<>` (or `!=`). "At least" includes the boundary, so think `>=` not `>`.'
+      - WHERE status <> 'cancelled' AND amount ...
+  no-city:
+    lang: sql
+    prompt: |
+      Some customers never told us their city. Find them: show `customer_id` and `name`.
+    starter: |
+      SELECT customer_id, name
+      FROM customers
+      WHERE
+    solution: SELECT customer_id, name FROM customers WHERE city IS NULL;
+    alternates:
+      - SELECT customer_id, name FROM customers WHERE city IS NOT DISTINCT FROM NULL;
+      - select customer_id, name from customers where city is null
+    wrong:
+      - SELECT customer_id, name FROM customers WHERE city = NULL;
+      - SELECT customer_id, name FROM customers WHERE city = '';
+      - SELECT customer_id, name FROM customers WHERE city IS NOT NULL;
+    hints:
+      - A missing city is stored as NULL, not as empty text.
+      - Comparing anything with `= NULL` gives unknown, never true. SQL has a special test for missing values.
+      - WHERE city IS ...
+
+quiz:
+  - id: null-eq
+    type: mcq
+    prompt: What does `WHERE email = NULL` return?
+    options:
+      - text: No rows, ever.
+        correct: true
+        why: Any comparison with NULL is *unknown*, and WHERE only keeps rows where the condition is *true*. Use `IS NULL`.
+      - text: Rows where email is missing.
+        why: That's what `email IS NULL` does. `= NULL` never matches.
+      - text: An error.
+        why: It's valid SQL — which makes the bug sneaky. It just returns nothing.
+  - id: and-or
+    type: mcq
+    prompt: "`WHERE country = 'India' OR country = 'Spain' AND is_active` — which rows come back?"
+    options:
+      - text: All Indian customers, plus only the active Spanish ones.
+        correct: true
+        why: AND is evaluated before OR, so it reads as `India OR (Spain AND active)`. Add parentheses to say what you mean.
+      - text: Active customers from India or Spain.
+        why: That needs parentheses — `(country = 'India' OR country = 'Spain') AND is_active`.
+      - text: Nobody, because a customer can't be in two countries.
+        why: OR only needs one side to be true.
+  - id: between
+    type: mcq
+    prompt: Does `amount BETWEEN 50 AND 100` include orders of exactly 50 and exactly 100?
+    options:
+      - text: Yes, both ends are included.
+        correct: true
+        why: BETWEEN is inclusive — it's shorthand for `amount >= 50 AND amount <= 100`.
+      - text: Only 50.
+        why: Both boundaries are included.
+      - text: Neither.
+        why: That would be `> 50 AND < 100`.
+  - id: case-sensitive
+    type: mcq
+    prompt: A row has country `'india'` (lower case). Does `WHERE country = 'India'` match it?
+    options:
+      - text: No — comparing text is case-sensitive.
+        correct: true
+        why: "'india' and 'India' are different strings. Cleaning inconsistent values like this is a classic staging-layer job (e.g. with `lower(country)`)."
+      - text: Yes — SQL ignores case.
+        why: Keywords are case-insensitive; *data* is not.
+      - text: Only in PostgreSQL.
+        why: Text comparison is case-sensitive in PostgreSQL and DuckDB alike (MySQL's defaults differ).
+  - id: like
+    type: multi
+    prompt: Which names does `name LIKE 'A%'` match? Select all.
+    options:
+      - text: Aarav Sharma
+        correct: true
+        why: Starts with A, then anything.
+      - text: Ananya Iyer
+        correct: true
+        why: Starts with A.
+      - text: Zara Khan
+        why: It contains an 'a' but doesn't *start* with 'A' — and LIKE is case-sensitive.
+      - text: arjun nair
+        why: Lower-case 'a' doesn't match 'A' with LIKE. DuckDB and PostgreSQL offer `ILIKE` for case-insensitive matching.
+
+cards:
+  - id: is-null
+    front: How do you find rows where `city` is missing — and why not `= NULL`?
+    back: "`WHERE city IS NULL`. Comparisons with NULL return *unknown*, never true, so `= NULL` matches nothing."
+  - id: and-before-or
+    front: Which binds tighter in SQL, AND or OR?
+    back: AND. `a OR b AND c` means `a OR (b AND c)` — use parentheses.
+  - id: between-card
+    front: Is BETWEEN inclusive or exclusive?
+    back: Inclusive at both ends — `x BETWEEN 1 AND 5` = `x >= 1 AND x <= 5`.
+
+practice:
+  - url: https://sqlbolt.com/lesson/select_queries_with_constraints
+    site: SQLBolt
+    title: "Lesson 2: Queries with constraints (pt. 1)"
+    difficulty: easy
+    free: true
+    estMinutes: 10
+    lastChecked: '2026-11-07'
+  - url: https://sqlbolt.com/lesson/select_queries_with_constraints_pt_2
+    site: SQLBolt
+    title: "Lesson 3: Queries with constraints (pt. 2)"
+    difficulty: easy
+    free: true
+    estMinutes: 10
+    lastChecked: '2026-11-07'
+  - url: https://pgexercises.com/questions/basic/where2.html
+    site: PostgreSQL Exercises
+    title: Control which rows are retrieved, part 2
+    difficulty: easy
+    free: true
+    estMinutes: 5
+    dialect: PostgreSQL
+    lastChecked: '2026-11-07'
+  - url: https://pgexercises.com/questions/basic/where4.html
+    site: PostgreSQL Exercises
+    title: Matching against multiple possible values (IN)
+    difficulty: easy
+    free: true
+    estMinutes: 5
+    dialect: PostgreSQL
+    lastChecked: '2026-11-07'

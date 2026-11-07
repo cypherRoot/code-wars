@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="description" content="DataForge — learn SQL and Python for data engineering, one day at a time." />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>DataForge</title>
+    <script>
+      // Apply saved theme/motion before first paint to avoid a flash.
+      try {
+        var s = JSON.parse(localStorage.getItem('dataforge.prefs') || '{}');
+        if (s.theme && s.theme !== 'system') document.documentElement.dataset.theme = s.theme;
+        if (s.motion && s.motion !== 'system') document.documentElement.dataset.motion = s.motion;
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

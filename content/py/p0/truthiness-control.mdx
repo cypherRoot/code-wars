@@ -1,0 +1,59 @@
+## Why it matters
+
+Pipeline code is full of decisions: skip the record if it's missing a field, retry if the API failed, bucket the amount. If you get truthiness wrong, records disappear without an error. Python's rules are mostly like JavaScript's, with one important exception.
+
+<JsBridge>
+
+```js
+if (items.length > 0) { ... }   // [] is truthy in JS!
+for (const o of orders) { ... }
+for (let i = 0; i < 3; i++) { ... }
+```
+
+```python
+if items:          # [] is falsy in Python
+    ...
+for o in orders:
+    ...
+for i in range(3):
+    ...
+```
+
+<Breaks>
+**Empty collections are falsy in Python**, so `if items:` means "if the list isn't empty". In JS, `[]` and `{}` are truthy. Python also has no C-style `for (;;)` loop: you loop over things directly, and use `range()` when you need numbers.
+</Breaks>
+
+</JsBridge>
+
+## Truthiness
+
+<Worked id="empty-list" />
+
+| Value | JavaScript | Python |
+|---|---|---|
+| `[]` / `{}` | truthy | **falsy** |
+| `0`, `""` | falsy | falsy |
+| `null` / `None` | falsy | falsy |
+| `"0"`, `"false"` | truthy | truthy |
+
+## Loops
+
+<Worked id="loops" />
+
+## None checks and defaults
+
+<Worked id="none-checks" />
+
+## Put it in order
+
+<Parsons id="total-delivered" />
+
+## Your turn
+
+<Exercise id="size-label" />
+
+<Exercise id="count-active" />
+
+<Callout kind="de">
+`count_active` is a tiny **data-quality rule**: "missing counts as not active". Real pipelines write such rules down explicitly and test them, because silently treating `None` as `True` (or dropping it) changes the numbers on someone's dashboard.
+</Callout>

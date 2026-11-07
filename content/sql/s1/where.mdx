@@ -1,0 +1,66 @@
+## Why it matters
+
+Almost every query a data engineer writes has a `WHERE`. You use it to process only yesterday's data, drop test accounts, or skip cancelled orders. Getting a filter subtly wrong is also how most "the numbers don't match" bugs start, so this lesson includes the classic traps.
+
+<JsBridge>
+
+```js
+customers.filter(c => c.country === "India")
+```
+
+```sql
+SELECT *
+FROM customers
+WHERE country = 'India';
+```
+
+<Breaks>
+JavaScript's `===` returns `true` or `false`. SQL logic has **three** values: true, false and *unknown*. Unknown is what you get whenever NULL is involved, and `WHERE` only keeps rows where the condition is **true**. Also: SQL uses a single `=` for comparison, and `AND` / `OR` / `NOT` instead of `&&` / `||` / `!`.
+</Breaks>
+
+</JsBridge>
+
+## The basics
+
+<Worked id="india" />
+
+Comparisons: `=`, `<>` (or `!=`), `<`, `<=`, `>`, `>=`. Combine them with `AND`, `OR` and `NOT`:
+
+<Worked id="combined" />
+
+<Callout kind="warn">
+`AND` is evaluated **before** `OR`, just like `*` before `+`. `a OR b AND c` means `a OR (b AND c)`. When you mix them, add parentheses even if they aren't needed. Your future self will thank you.
+</Callout>
+
+## Shorthands: IN, BETWEEN, LIKE
+
+<Worked id="shorthands" />
+
+## The NULL trap
+
+NULL isn't zero or an empty string. It means **unknown / missing**. Make a prediction:
+
+<Worked id="null-trap" />
+
+| Expression | Result |
+|---|---|
+| `NULL = NULL` | unknown |
+| `NULL <> 'London'` | unknown |
+| `city IS NULL` | true / false: **use this** |
+| `city IS NOT NULL` | true / false |
+
+## Your turn
+
+<Exercise id="two-countries" />
+
+<Exercise id="big-open-orders" />
+
+<Callout kind="tip">
+Your answers are also checked against a **hidden dataset** with awkward cases: exact boundary values, NULLs, odd casing. Getting the right result by luck on the visible data isn't enough, just as in production.
+</Callout>
+
+<Exercise id="no-city" />
+
+<Callout kind="de">
+Incremental pipelines are built on `WHERE`. Instead of reprocessing everything nightly, a job loads only the new rows, using `WHERE order_date >= DATE '2025-03-01'` or "everything since the last run". An off-by-one between `>` and `>=` here means a day of data is missing or loaded twice.
+</Callout>

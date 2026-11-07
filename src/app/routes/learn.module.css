@@ -1,0 +1,171 @@
+.tracks {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.track {
+  display: grid;
+  gap: var(--s2);
+  padding: var(--s4);
+  border-right: 1px solid var(--line);
+}
+.track:last-child {
+  border-right: none;
+}
+.track > .label:first-child {
+  color: var(--track);
+}
+.trackNum {
+  font-size: 2.5rem;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.trackOf {
+  color: var(--muted);
+  font-size: 1.25rem;
+}
+.meter {
+  display: block;
+  height: 3px;
+  background: var(--line);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.meter span {
+  display: block;
+  height: 100%;
+  background: var(--track);
+  transition: width var(--dur-story) var(--ease-out);
+}
+.trackNote {
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+@media (max-width: 720px) {
+  .tracks {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .track:nth-child(2) {
+    border-right: none;
+  }
+  .track:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--line);
+  }
+}
+
+/* The path as a vertical pipeline: nodes joined by a line, lit as you progress */
+.path {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+.module {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2rem 1fr;
+  gap: var(--s4);
+  padding-bottom: var(--s6);
+}
+.module::before {
+  content: '';
+  position: absolute;
+  left: calc(1rem - 1px);
+  top: 1.25rem;
+  bottom: 0;
+  width: 2px;
+  background: var(--line);
+}
+.module:last-child::before {
+  display: none;
+}
+.done::before {
+  background: color-mix(in srgb, var(--mastery) 60%, transparent);
+}
+.node {
+  width: 14px;
+  height: 14px;
+  margin: 0.3rem auto 0;
+  border-radius: 50%;
+  border: 2px solid var(--line-strong);
+  background: var(--ink);
+  position: relative;
+  z-index: 1;
+}
+.todo .node {
+  border-color: var(--track);
+}
+.active .node {
+  border-color: var(--track);
+  background: var(--track);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--track) 18%, transparent);
+}
+.done .node {
+  border-color: var(--mastery);
+  background: var(--mastery);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--mastery) 55%, transparent);
+}
+.modBody {
+  display: grid;
+  gap: var(--s2);
+  min-width: 0;
+}
+.modTitle {
+  font-size: var(--fs-h3);
+}
+.blurb {
+  color: var(--muted);
+}
+.soon .modTitle,
+.soon .blurb {
+  opacity: 0.55;
+}
+.lessons {
+  list-style: none;
+  margin: var(--s2) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--s1);
+}
+.lesson {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: var(--s3);
+  align-items: center;
+  padding: var(--s3) var(--s4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: border-color var(--dur-hover) var(--ease-inout);
+}
+.lesson:hover {
+  border-color: var(--track);
+}
+.lessonTitle {
+  font-weight: 500;
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line-strong);
+}
+.dotStarted {
+  border-color: var(--track);
+  background: color-mix(in srgb, var(--track) 50%, transparent);
+}
+.dotDone {
+  border-color: var(--mastery);
+  background: var(--mastery);
+}
+@media (max-width: 520px) {
+  .lesson {
+    grid-template-columns: auto 1fr;
+  }
+  .lesson > .label {
+    grid-column: 2;
+  }
+}

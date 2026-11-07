@@ -1,0 +1,57 @@
+.card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: clamp(var(--s4), 3vw, var(--s6));
+  display: grid;
+  gap: var(--s4);
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+  animation: df-rise var(--dur-ui) var(--ease-out) both;
+}
+.card :global(fieldset) {
+  border-top: none;
+  padding-top: 0;
+}
+.front {
+  font-size: var(--fs-h3);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  display: grid;
+  gap: var(--s2);
+}
+.back {
+  border-top: 1px solid var(--line);
+  padding-top: var(--s4);
+  font-size: var(--fs-prose);
+  display: grid;
+  gap: var(--s3);
+}
+.front code,
+.back code {
+  font-size: 0.9em;
+  padding: 1px 5px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+.grades {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--s2);
+}
+.grade {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  min-height: 56px;
+  white-space: normal;
+}
+.sub {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-weight: 400;
+}
+@media (max-width: 480px) {
+  .grades {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

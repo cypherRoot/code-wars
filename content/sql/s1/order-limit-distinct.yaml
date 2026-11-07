@@ -1,0 +1,212 @@
+id: sql.s1.order-limit-distinct
+title: Sorting, top-N and DISTINCT
+summary: Ask for an order with ORDER BY, take the top N with LIMIT, remove duplicates with DISTINCT — and learn the order SQL really runs your clauses in.
+track: sql
+module: S1
+order: 3
+version: 1
+estMinutes: 25
+where: browser
+objectives:
+  - Sort by one or more columns, ascending or descending
+  - Write a deterministic top-N query with a tie-breaker
+  - Remove duplicate rows with DISTINCT
+  - Explain the logical order in which SQL evaluates a query
+
+worked:
+  top3:
+    lang: sql
+    code: |
+      SELECT name, price
+      FROM products
+      ORDER BY price DESC
+      LIMIT 3;
+    predict:
+      prompt: Which product is on the first row?
+      options:
+        - Standing Desk
+        - Ergonomic Chair
+        - Green Tea (100 bags)
+      answer: 0
+      explain: "`DESC` sorts highest first, so the most expensive product (Standing Desk, 349.00) leads. Without DESC the default is ascending — cheapest first."
+  distinct:
+    lang: sql
+    code: |
+      SELECT DISTINCT country
+      FROM customers
+      ORDER BY country;
+    note: 20 customers, but only 10 distinct countries. DISTINCT removes duplicate *rows* of the result.
+  multi-sort:
+    lang: sql
+    code: |
+      SELECT country, name, signup_date
+      FROM customers
+      ORDER BY country, signup_date DESC;
+    note: Sorted by country first; within the same country, newest signup first. Each column in ORDER BY can have its own direction.
+
+parsons:
+  clause-order:
+    lang: sql
+    prompt: Put this query's clauses in the order SQL requires you to **write** them.
+    lines:
+      - SELECT name, price
+      - FROM products
+      - WHERE category = 'Books'
+      - ORDER BY price DESC
+      - LIMIT 2;
+    explain: Written order is SELECT → FROM → WHERE → ORDER BY → LIMIT. The database *runs* them in a different order — FROM → WHERE → SELECT → ORDER BY → LIMIT — which is why ORDER BY can use a SELECT alias but WHERE can't.
+
+exercises:
+  top5-products:
+    lang: sql
+    prompt: |
+      Show the **5 most expensive** products: `name` and `price`, most expensive first.
+      If two products cost the same, order them by `name` (A→Z) so the result is always the same.
+    starter: |
+      SELECT name, price
+      FROM products
+    solution: SELECT name, price FROM products ORDER BY price DESC, name LIMIT 5;
+    alternates:
+      - SELECT name, price FROM products ORDER BY price DESC, name ASC LIMIT 5;
+      - SELECT name, price FROM products ORDER BY 2 DESC, 1 LIMIT 5;
+    wrong:
+      - SELECT name, price FROM products ORDER BY price LIMIT 5;
+      - SELECT name, price FROM products ORDER BY price DESC LIMIT 3;
+      - SELECT name, price FROM products ORDER BY price DESC, name DESC LIMIT 5;
+    orderMatters: true
+    hints:
+      - Sort first, then cut the list down.
+      - "`ORDER BY price DESC` puts the most expensive first. Add a second sort column after a comma to break ties."
+      - ORDER BY price DESC, name LIMIT ...
+  statuses:
+    lang: sql
+    prompt: |
+      List every **distinct** order `status`, alphabetically.
+    starter: |
+      SELECT
+      FROM orders
+    solution: SELECT DISTINCT status FROM orders ORDER BY status;
+    alternates:
+      - SELECT status FROM orders GROUP BY status ORDER BY status;
+      - SELECT DISTINCT status FROM orders ORDER BY status ASC
+    wrong:
+      - SELECT status FROM orders ORDER BY status;
+      - SELECT DISTINCT status FROM orders ORDER BY status DESC;
+    orderMatters: true
+    hints:
+      - Each status appears on many orders; you want each one once.
+      - DISTINCT goes right after SELECT. Alphabetical is the default (ascending) sort.
+      - SELECT DISTINCT status FROM orders ORDER BY ...
+  latest-orders:
+    lang: sql
+    prompt: |
+      Show the **3 most recent** orders: `order_id` and `order_date`, newest first.
+    starter: |
+      SELECT order_id, order_date
+      FROM orders
+    solution: SELECT order_id, order_date FROM orders ORDER BY order_date DESC LIMIT 3;
+    alternates:
+      - SELECT order_id, order_date FROM orders ORDER BY order_date DESC, order_id DESC LIMIT 3;
+      - SELECT order_id, order_date FROM orders ORDER BY 2 DESC LIMIT 3
+    wrong:
+      - SELECT order_id, order_date FROM orders ORDER BY order_date LIMIT 3;
+      - SELECT order_id, order_date FROM orders ORDER BY order_date DESC LIMIT 5;
+      - SELECT order_id, order_date FROM orders LIMIT 3;
+    orderMatters: true
+    hints:
+      - '"Most recent" = the latest dates.'
+      - Dates sort chronologically; DESC puts the newest first.
+      - ORDER BY order_date DESC LIMIT ...
+
+quiz:
+  - id: logical-order
+    type: mcq
+    prompt: In what order does the database logically **evaluate** these clauses?
+    options:
+      - text: FROM → WHERE → SELECT → ORDER BY → LIMIT
+        correct: true
+        why: It first finds the table, filters rows, computes the output columns, sorts them, then cuts. That's why WHERE can't use a SELECT alias but ORDER BY can.
+      - text: SELECT → FROM → WHERE → ORDER BY → LIMIT
+        why: That's the order you *write* them, not the order they're evaluated.
+      - text: LIMIT → FROM → WHERE → SELECT → ORDER BY
+        why: LIMIT comes last — you can only take the "top 3" after sorting.
+  - id: limit-no-order
+    type: mcq
+    prompt: "`SELECT * FROM orders LIMIT 3` — which three orders do you get?"
+    options:
+      - text: Any three — without ORDER BY the database may return whichever rows it finds first.
+        correct: true
+        why: Tables have no guaranteed order. It might look stable today and change after the table is rewritten. Always pair LIMIT with ORDER BY when the choice matters.
+      - text: The three oldest orders.
+        why: Only if you add ORDER BY order_date.
+      - text: The first three that were inserted.
+        why: Insertion order isn't guaranteed to be the read order, especially in parallel/columnar engines.
+  - id: distinct-row
+    type: mcq
+    prompt: What does `SELECT DISTINCT country, city FROM customers` remove?
+    options:
+      - text: Rows where *both* country and city repeat an earlier row.
+        correct: true
+        why: DISTINCT applies to the whole result row, not just the first column. London appears twice for the UK, so (United Kingdom, London) shows once.
+      - text: Duplicate countries only.
+        why: DISTINCT looks at all selected columns together.
+      - text: NULL cities.
+        why: DISTINCT keeps NULLs (it treats them as equal to each other for de-duplication).
+  - id: alias-order
+    type: mcq
+    prompt: Will this work? `SELECT name, price * 1.18 AS gross FROM products ORDER BY gross DESC`
+    options:
+      - text: Yes — ORDER BY runs after SELECT, so the alias exists by then.
+        correct: true
+        why: Logical order again. The same alias in WHERE would fail, because WHERE runs before SELECT.
+      - text: No — you can't sort by a computed column.
+        why: You can sort by any expression or alias.
+      - text: Only if gross is also in the table.
+        why: The alias only needs to exist in the SELECT list.
+  - id: nulls-sort
+    type: mcq
+    prompt: You sort by a column that contains NULLs, `ORDER BY price DESC`. Where do the NULLs go?
+    options:
+      - text: It depends on the database — DuckDB puts them last, PostgreSQL puts them first for DESC.
+        correct: true
+        why: Be explicit when it matters — `ORDER BY price DESC NULLS LAST` works in both.
+      - text: NULL rows are removed.
+        why: ORDER BY never removes rows.
+      - text: Always first.
+        why: Not in DuckDB, whose default is NULLS LAST.
+
+cards:
+  - id: logical-order-card
+    front: The logical evaluation order of SELECT / FROM / WHERE / ORDER BY / LIMIT?
+    back: FROM → WHERE → SELECT → ORDER BY → LIMIT.
+  - id: limit-card
+    front: Why should LIMIT almost always come with ORDER BY?
+    back: Without ORDER BY the database may return any rows — the "top N" isn't defined, and can change between runs.
+  - id: tiebreak-card
+    front: How do you make a top-N query deterministic when values can tie?
+    back: Add a tie-breaker column to ORDER BY, e.g. `ORDER BY price DESC, name`.
+
+practice:
+  - url: https://sqlbolt.com/lesson/filtering_sorting_query_results
+    site: SQLBolt
+    title: "Lesson 4: Filtering and sorting query results"
+    difficulty: easy
+    free: true
+    estMinutes: 10
+    lastChecked: '2026-11-07'
+  - url: https://pgexercises.com/questions/basic/unique.html
+    site: PostgreSQL Exercises
+    title: Removing duplicates, and ordering results
+    difficulty: easy
+    free: true
+    estMinutes: 5
+    dialect: PostgreSQL
+    lastChecked: '2026-11-07'
+  - url: https://pgexercises.com/questions/basic/classify.html
+    site: PostgreSQL Exercises
+    title: Classifying results into buckets (CASE — a peek at S2)
+    difficulty: medium
+    free: true
+    estMinutes: 10
+    dialect: PostgreSQL
+    lastChecked: '2026-11-07'

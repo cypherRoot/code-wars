@@ -1,0 +1,228 @@
+id: py.p0.collections
+title: Lists, dicts, tuples and sets
+summary: Python's four core collections mapped to arrays, objects and Sets — with slicing, safe dictionary lookups, and the aliasing trap.
+track: py
+module: P0
+order: 2
+version: 1
+estMinutes: 25
+where: browser
+objectives:
+  - Index, slice and append to lists (including negative indexes)
+  - Read dict values safely with .get() and check keys with `in`
+  - Choose between list, tuple, dict and set
+  - Explain why `b = a` doesn't copy a list
+
+worked:
+  lists:
+    lang: python
+    code: |
+      amounts = [114.49, 29.99, 349.00]
+      amounts.append(42.50)          # JS: push
+
+      print(len(amounts))            # JS: amounts.length
+      print(amounts[0], amounts[-1]) # -1 = last item
+      print(amounts[1:3])            # slice: items 1 and 2
+  dict-get:
+    lang: python
+    code: |
+      customer = {"name": "Priya", "country": "India"}
+      print(customer.get("city"))
+    predict:
+      prompt: "`customer` has no `\"city\"` key. What does this print?"
+      options:
+        - "`None`"
+        - "`undefined`"
+        - It crashes with a KeyError
+      answer: 0
+      explain: "`.get(key)` returns None for a missing key (or a default: `.get(\"city\", \"unknown\")`). `customer[\"city\"]` — square brackets — *would* raise a KeyError."
+  sets-tuples:
+    lang: python
+    code: |
+      countries = {"India", "UK", "India", "Germany"}
+      print(len(countries), "India" in countries)
+
+      point = (19.07, 72.87)        # a tuple: fixed, can't be changed
+      lat, lon = point              # unpacking, like JS destructuring
+      print(lat, lon)
+  aliasing:
+    lang: python
+    code: |
+      a = [1, 2, 3]
+      b = a
+      b.append(4)
+      print(a)
+
+      c = a.copy()
+      c.append(5)
+      print(a, c)
+    note: "`b = a` makes a second name for the *same* list — exactly like JS arrays. Use `.copy()` (or `list(a)`, `a[:]`) for a real copy."
+
+exercises:
+  last-two:
+    lang: python
+    prompt: |
+      Complete `last_two(xs)` so it returns a **list** of the last two items of `xs`.
+      If `xs` has fewer than two items, return all of them.
+
+      `last_two([1, 2, 3, 4])` → `[3, 4]`
+    starter: |
+      def last_two(xs):
+          # return a list
+          return xs
+    solution: |
+      def last_two(xs):
+          return xs[-2:]
+    alternates:
+      - |
+        def last_two(xs):
+            return xs[max(0, len(xs) - 2):]
+      - |
+        def last_two(xs):
+            if len(xs) < 2:
+                return list(xs)
+            return [xs[-2], xs[-1]]
+    wrong:
+      - |
+        def last_two(xs):
+            return xs[-2]
+      - |
+        def last_two(xs):
+            return [xs[-2], xs[-1]]
+      - |
+        def last_two(xs):
+            return xs[:2]
+    cases:
+      - call: last_two([1, 2, 3, 4])
+        expect: '[3, 4]'
+      - call: last_two(["a", "b"])
+        expect: '["a", "b"]'
+      - call: last_two([5])
+        expect: '[5]'
+      - call: last_two([])
+        expect: '[]'
+    hints:
+      - A slice never raises an error, even if it asks for more items than exist.
+      - "`xs[start:]` takes everything from `start` to the end, and negative indexes count from the end."
+      - return xs[-2:]
+  country-of:
+    lang: python
+    prompt: |
+      Complete `country_of(customer)` to return the customer's `"country"`,
+      or the text `"unknown"` if the dict has no such key.
+    starter: |
+      def country_of(customer):
+          return customer["country"]
+    solution: |
+      def country_of(customer):
+          return customer.get("country", "unknown")
+    alternates:
+      - |
+        def country_of(customer):
+            if "country" in customer:
+                return customer["country"]
+            return "unknown"
+    wrong:
+      - |
+        def country_of(customer):
+            return customer["country"]
+      - |
+        def country_of(customer):
+            return customer.get("country")
+    cases:
+      - call: 'country_of({"name": "Priya", "country": "India"})'
+        expect: '"India"'
+      - call: 'country_of({"name": "Tom"})'
+        expect: '"unknown"'
+      - call: country_of({})
+        expect: '"unknown"'
+    hints:
+      - Square brackets raise KeyError on a missing key. There's a method that doesn't.
+      - "`.get(key, default)` returns `default` when the key is missing."
+      - return customer.get("country", ...)
+
+quiz:
+  - id: neg-index
+    type: mcq
+    prompt: "`xs = [10, 20, 30]`. What is `xs[-1]`?"
+    options:
+      - text: "`30`"
+        correct: true
+        why: Negative indexes count from the end; -1 is the last item.
+      - text: "`None`"
+        why: Negative indexes are valid in Python.
+      - text: An IndexError
+        why: Only `xs[-4]` or `xs[3]` would be out of range.
+  - id: in-dict
+    type: mcq
+    prompt: "`d = {\"a\": 1}`. What is `1 in d`?"
+    options:
+      - text: "`False` — `in` checks a dict's **keys**, not its values."
+        correct: true
+        why: Use `1 in d.values()` to search values. `"a" in d` is True.
+      - text: "`True`"
+        why: "`in` on a dict looks at keys only."
+      - text: A TypeError
+        why: "`in` works on dicts; it just checks keys."
+  - id: tuple
+    type: mcq
+    prompt: What's the main difference between a list and a tuple?
+    options:
+      - text: A tuple can't be changed after it's created.
+        correct: true
+        why: Tuples are immutable — good for fixed records like (lat, lon), and they can be dict keys or set members.
+      - text: Tuples can only hold numbers.
+        why: Tuples hold anything.
+      - text: Tuples are sorted automatically.
+        why: Neither lists nor tuples sort themselves.
+  - id: alias-quiz
+    type: mcq
+    prompt: "`a = [1, 2]`, then `b = a`, then `b.append(3)`. What is `a`?"
+    options:
+      - text: "`[1, 2, 3]`"
+        correct: true
+        why: "`a` and `b` are two names for the same list. Same as JS arrays."
+      - text: "`[1, 2]`"
+        why: That would need `b = a.copy()`.
+      - text: An error — two names can't share a list.
+        why: Sharing is allowed (and a common source of bugs).
+  - id: which-collection
+    type: mcq
+    prompt: You need to know whether you've already processed a given `order_id`, across a million orders. Best collection?
+    options:
+      - text: A set
+        correct: true
+        why: "`order_id in seen` on a set is effectively instant; on a list it scans every item. This is the classic dedup pattern."
+      - text: A list
+        why: "`in` on a list checks each item one by one — slow for a million."
+      - text: A tuple
+        why: Same scanning problem as a list, and you can't add to it.
+
+cards:
+  - id: get-card
+    front: How do you read a dict key that might be missing, without an exception?
+    back: '`d.get("key")` → None, or `d.get("key", default)`. `d["key"]` raises KeyError.'
+  - id: slice-card
+    front: What does `xs[-2:]` return?
+    back: A new list with the last two items (fewer if `xs` is shorter — slices never raise).
+  - id: copy-card
+    front: Does `b = a` copy a list?
+    back: No — both names point to the same list. Use `a.copy()`, `list(a)` or `a[:]`.
+
+practice:
+  - url: https://exercism.org/tracks/python/exercises/card-games
+    site: Exercism
+    title: Card Games (lists)
+    difficulty: easy
+    free: true
+    accountRequired: true
+    estMinutes: 25
+    lastChecked: '2026-11-07'
+  - url: https://exercism.org/tracks/python/exercises/inventory-management
+    site: Exercism
+    title: Inventory Management (dicts)
+    difficulty: easy
+    free: true
+    accountRequired: true
+    estMinutes: 25
+    lastChecked: '2026-11-07'

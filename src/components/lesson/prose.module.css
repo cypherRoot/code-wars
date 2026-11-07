@@ -1,0 +1,90 @@
+.bridge {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: var(--s5);
+  display: grid;
+  gap: var(--s3);
+}
+.bridgeLabel {
+  color: var(--track);
+}
+.bridgeGrid {
+  display: grid;
+  gap: var(--s3);
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+}
+.breaks {
+  grid-column: 1 / -1;
+  border-left: 2px solid var(--de);
+  padding-left: var(--s4);
+  display: grid;
+  gap: var(--s1);
+}
+.breaks p:first-child {
+  color: var(--de);
+}
+.callout {
+  border-left: 2px solid var(--track);
+  padding: var(--s2) 0 var(--s2) var(--s4);
+  display: grid;
+  gap: var(--s1);
+}
+.callout > div > p + p {
+  margin-top: var(--s2);
+}
+.warn {
+  border-left-color: var(--de);
+}
+.warn > p:first-child {
+  color: var(--de);
+}
+.dialect {
+  border-left-color: var(--found);
+}
+.dialect > p:first-child {
+  color: var(--found);
+}
+.de {
+  border-left-color: var(--mastery);
+}
+.de > p:first-child {
+  color: var(--mastery);
+}
+.schema {
+  margin: var(--s2) 0;
+}
+.checklist {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: var(--s5);
+  display: grid;
+  gap: var(--s3);
+}
+.checklist ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--s5);
+}
+.checklist li {
+  display: grid;
+  gap: var(--s2);
+}
+.check {
+  display: flex;
+  gap: var(--s3);
+  align-items: flex-start;
+  cursor: pointer;
+  font-weight: 500;
+}
+.check input {
+  margin-top: 0.3em;
+  width: 1.1em;
+  height: 1.1em;
+  accent-color: var(--mastery);
+}
+.verify {
+  color: var(--muted);
+  font-size: 0.9375rem;
+}

@@ -1,0 +1,277 @@
+id: py.p0.truthiness-control
+title: Truthiness, if/elif and loops
+summary: The rules for what counts as "true" in Python (they differ from JS), branching with if/elif/else, and looping over data with for.
+track: py
+module: P0
+order: 3
+version: 1
+estMinutes: 25
+where: browser
+objectives:
+  - List Python's falsy values and spot where they differ from JavaScript
+  - Branch with if / elif / else and check for None with `is None`
+  - Loop over lists, dicts and ranges with for
+
+worked:
+  empty-list:
+    lang: python
+    code: |
+      items = []
+      if items:
+          print("has items")
+      else:
+          print("empty")
+    predict:
+      prompt: What does this print?
+      options:
+        - "`has items`"
+        - "`empty`"
+      answer: 1
+      explain: In Python an empty list is **falsy** — so are `{}`, `""`, `0` and `None`. In JavaScript `[]` and `{}` are truthy, so the same check would print "has items".
+  loops:
+    lang: python
+    code: |
+      orders = [
+          {"id": 101, "status": "delivered", "amount": 114.49},
+          {"id": 105, "status": "cancelled", "amount": 199.99},
+      ]
+      for order in orders:            # JS: for (const order of orders)
+          print(order["id"], order["status"])
+
+      for i in range(3):              # 0, 1, 2
+          print("retry", i)
+
+      prices = {"mouse": 24.99, "desk": 349.0}
+      for name, price in prices.items():
+          print(name, price)
+  none-checks:
+    lang: python
+    code: |
+      city = None
+      if city is None:
+          print("no city on file")
+
+      nickname = ""
+      print(nickname or "anonymous")   # `or` returns the first truthy value
+    note: Use `is None` (not `== None`) to test for None. `x or default` works like JS `x || default` — careful, it also replaces `0` and `""`.
+
+parsons:
+  total-delivered:
+    lang: python
+    prompt: Put the lines in order so the function adds up the amounts of delivered orders.
+    lines:
+      - 'def total_delivered(orders):'
+      - '    total = 0'
+      - '    for o in orders:'
+      - '        if o["status"] == "delivered":'
+      - '            total += o["amount"]'
+      - '    return total'
+    explain: The accumulator starts at 0 *before* the loop, the `if` sits inside the loop, and `return` comes after the loop ends — its indentation puts it back at function level. Returning inside the loop would stop after the first order.
+
+exercises:
+  size-label:
+    lang: python
+    prompt: |
+      Complete `size_label(amount)`. Return:
+
+      - `"unknown"` if `amount` is `None`
+      - `"small"` if it's under 50
+      - `"medium"` if it's 50 or more but under 200
+      - `"large"` for 200 and above
+    starter: |
+      def size_label(amount):
+          ...
+    solution: |
+      def size_label(amount):
+          if amount is None:
+              return "unknown"
+          if amount < 50:
+              return "small"
+          elif amount < 200:
+              return "medium"
+          else:
+              return "large"
+    alternates:
+      - |
+        def size_label(amount):
+            if amount is None:
+                return "unknown"
+            elif amount >= 200:
+                return "large"
+            elif amount >= 50:
+                return "medium"
+            return "small"
+    wrong:
+      - |
+        def size_label(amount):
+            if amount < 50:
+                return "small"
+            elif amount < 200:
+                return "medium"
+            return "large"
+      - |
+        def size_label(amount):
+            if amount is None:
+                return "unknown"
+            if amount <= 50:
+                return "small"
+            elif amount < 200:
+                return "medium"
+            return "large"
+    cases:
+      - call: size_label(10)
+        expect: '"small"'
+      - call: size_label(50)
+        expect: '"medium"'
+      - call: size_label(199.99)
+        expect: '"medium"'
+      - call: size_label(200)
+        expect: '"large"'
+      - call: size_label(None)
+        expect: '"unknown"'
+    hints:
+      - Handle None first — comparing None with a number raises a TypeError.
+      - Check the bands in order with if / elif / else. Watch the boundaries — 50 is medium, 200 is large.
+      - "if amount is None: return \"unknown\" — then if amount < 50: ..."
+  count-active:
+    lang: python
+    prompt: |
+      Complete `count_active(customers)`: given a list of dicts, return how many have
+      `"is_active"` set to `True`. Missing data (`None`) does **not** count as active.
+    starter: |
+      def count_active(customers):
+          count = 0
+          # loop here
+          return count
+    solution: |
+      def count_active(customers):
+          count = 0
+          for c in customers:
+              if c["is_active"]:
+                  count += 1
+          return count
+    alternates:
+      - |
+        def count_active(customers):
+            return sum(1 for c in customers if c["is_active"])
+      - |
+        def count_active(customers):
+            count = 0
+            for c in customers:
+                if c["is_active"] is True:
+                    count += 1
+            return count
+    wrong:
+      - |
+        def count_active(customers):
+            return len(customers)
+      - |
+        def count_active(customers):
+            count = 0
+            for c in customers:
+                if c["is_active"] is not False:
+                    count += 1
+            return count
+    cases:
+      - call: count_active([])
+        expect: '0'
+      - call: 'count_active([{"is_active": True}, {"is_active": False}, {"is_active": True}])'
+        expect: '2'
+      - call: 'count_active([{"is_active": None}, {"is_active": True}])'
+        expect: '1'
+    hints:
+      - Loop over the list and look at each dict's "is_active" value.
+      - "`if c[\"is_active\"]:` is true only for truthy values — None and False are both falsy."
+      - "for c in customers: if c[\"is_active\"]: count += 1"
+
+quiz:
+  - id: falsy
+    type: multi
+    prompt: Which values are **falsy** in Python? Select all.
+    options:
+      - text: "`[]`"
+        correct: true
+        why: Empty collections are falsy in Python (truthy in JS!).
+      - text: "`0`"
+        correct: true
+        why: Zero is falsy, as in JS.
+      - text: "`None`"
+        correct: true
+        why: None is falsy.
+      - text: "`\"0\"`"
+        why: A non-empty string is truthy, even if it says "0".
+      - text: "`{\"a\": 0}`"
+        why: A non-empty dict is truthy, whatever its values.
+  - id: is-none
+    type: mcq
+    prompt: Why write `if x is None` rather than `if not x` when checking for a missing value?
+    options:
+      - text: "`not x` is also true for 0, empty strings and empty lists — which may be real values."
+        correct: true
+        why: An order amount of 0 or an empty list of items is data, not "missing". Be precise.
+      - text: "`not x` is a syntax error."
+        why: It's valid — just less precise.
+      - text: They're exactly the same.
+        why: They differ for every falsy value other than None.
+  - id: range
+    type: mcq
+    prompt: "What does `for i in range(3): print(i)` print?"
+    options:
+      - text: 0, 1, 2
+        correct: true
+        why: range(n) counts from 0 up to, but not including, n.
+      - text: 1, 2, 3
+        why: Like list indexes, range starts at 0.
+      - text: 0, 1, 2, 3
+        why: The stop value is excluded.
+  - id: elif
+    type: mcq
+    prompt: What is Python's spelling of JavaScript's `else if`?
+    options:
+      - text: "`elif`"
+        correct: true
+        why: if → elif → else.
+      - text: "`else if`"
+        why: That's a syntax error in Python.
+      - text: "`elseif`"
+        why: That's PHP.
+  - id: dict-loop
+    type: mcq
+    prompt: How do you loop over both keys and values of a dict `prices`?
+    options:
+      - text: "`for name, price in prices.items():`"
+        correct: true
+        why: ".items() yields (key, value) tuples, unpacked into two names."
+      - text: "`for name, price in prices:`"
+        why: Looping a dict directly gives only keys, so unpacking two names fails.
+      - text: "`prices.forEach((price, name) => ...)`"
+        why: That's JavaScript (for Maps).
+
+cards:
+  - id: falsy-card
+    front: Python's falsy values?
+    back: "`None`, `False`, `0`, `0.0`, `\"\"`, and empty collections `[]`, `{}`, `()`, `set()`. Unlike JS, `[]` and `{}` are falsy."
+  - id: is-none-card
+    front: Correct way to check that `x` is None?
+    back: '`if x is None:` — not `== None`, and not `if not x` (which also matches 0 and "").'
+  - id: items-card
+    front: Loop over a dict's keys and values together?
+    back: "`for key, value in d.items():`"
+
+practice:
+  - url: https://exercism.org/tracks/python/exercises/ghost-gobble-arcade-game
+    site: Exercism
+    title: Ghost Gobble Arcade Game (booleans)
+    difficulty: easy
+    free: true
+    accountRequired: true
+    estMinutes: 15
+    lastChecked: '2026-11-07'
+  - url: https://exercism.org/tracks/python/exercises/meltdown-mitigation
+    site: Exercism
+    title: Meltdown Mitigation (conditionals)
+    difficulty: easy
+    free: true
+    accountRequired: true
+    estMinutes: 20
+    lastChecked: '2026-11-07'

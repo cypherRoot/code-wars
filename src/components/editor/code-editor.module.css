@@ -1,0 +1,16 @@
+.wrap {
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--surface);
+  transition: border-color var(--dur-hover) var(--ease-inout);
+}
+.wrap:focus-within {
+  border-color: var(--track);
+}
+.host :global(.cm-editor) {
+  max-height: 28rem;
+}
+.host :global(.cm-scroller) {
+  line-height: 1.6;
+}

@@ -1,0 +1,66 @@
+## Why it matters
+
+Pipelines, Airflow DAGs, data-quality checks and most glue code in data engineering are written in Python. You already know how to program, so you don't need to learn programming again. You need a **translation table** and a list of the traps where a JS reflex gives the wrong answer.
+
+<JsBridge>
+
+```js
+const city = "Mumbai";
+let orders = 3;
+console.log(`${city}: ${orders} orders`);
+if (orders > 2) {
+  console.log("busy");
+}
+```
+
+```python
+city = "Mumbai"
+orders = 3
+print(f"{city}: {orders} orders")
+if orders > 2:
+    print("busy")
+```
+
+<Breaks>
+Python has no `const`: every name can be reassigned, and by convention `UPPER_CASE` names are treated as constants. **Indentation is syntax**, not style. A block starts with a line ending in `:` and continues for as long as lines are indented under it.
+</Breaks>
+
+</JsBridge>
+
+## Values and printing
+
+<Worked id="basics" />
+
+| JavaScript | Python |
+|---|---|
+| `null`, `undefined` | `None` |
+| `true`, `false` | `True`, `False` |
+| `&&`, `\|\|`, `!` | `and`, `or`, `not` |
+| `===`, `!==` | `==`, `!=` |
+| `x++` | `x += 1` |
+| `// comment` | `# comment` |
+| `console.log(a, b)` | `print(a, b)` |
+
+## Numbers behave a little differently
+
+<Worked id="arithmetic" />
+
+<Callout kind="tip">
+Python integers never overflow. `2 ** 100` is exact, unlike JavaScript's `Number`. Floats are the same IEEE doubles as JS, so `0.1 + 0.2` is still `0.30000000000000004`. That's why money is often stored as integer cents.
+</Callout>
+
+## No silent type conversion
+
+<Worked id="no-coercion" />
+
+This is a feature for data work. When a CSV hands you the text `"42"`, Python makes you decide whether it's an `int`, a `float` or really text. Nothing gets coerced silently.
+
+## Your turn
+
+<Exercise id="receipt" />
+
+<Exercise id="parse-number" />
+
+<Callout kind="de">
+"It's text but should be a number" is the most common bug in raw data. Staging code in Python or SQL exists largely to **cast** every column to its proper type exactly once, so nothing downstream has to wonder.
+</Callout>

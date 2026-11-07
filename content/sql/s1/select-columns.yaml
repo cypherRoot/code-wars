@@ -1,0 +1,166 @@
+id: sql.s1.select-columns
+title: Choosing columns, computing new ones
+summary: Pick exactly the columns you need, compute new values from them, and give results readable names with AS.
+track: sql
+module: S1
+order: 1
+version: 1
+estMinutes: 20
+where: browser
+objectives:
+  - Select specific columns in a chosen order
+  - Compute a new column with arithmetic
+  - Rename result columns with AS
+  - Explain why naming columns beats SELECT * in pipelines
+
+worked:
+  rows:
+    lang: sql
+    code: |
+      SELECT name, country
+      FROM customers;
+    predict:
+      prompt: How many **rows** will this return?
+      options:
+        - 2 — one per column
+        - 20 — one per customer
+        - 40 — two values per customer
+      answer: 1
+      explain: Choosing columns changes the *width* of the result, never the number of rows. Every customer is still there — you just see two of their columns.
+  computed:
+    lang: sql
+    code: |
+      SELECT
+        name,
+        price,
+        price * 1.18 AS price_with_vat
+      FROM products;
+    note: "`price * 1.18` is computed for every row. `AS price_with_vat` names the new column — without it, DuckDB would call it something like `(price * 1.18)`."
+
+exercises:
+  name-price:
+    lang: sql
+    prompt: |
+      List every product's `name` and `price` — in that column order.
+    starter: |
+      SELECT
+      FROM products;
+    solution: SELECT name, price FROM products;
+    alternates:
+      - SELECT products.name, products.price FROM products;
+      - SELECT name AS name, price AS price FROM products
+    wrong:
+      - SELECT price, name FROM products;
+      - SELECT * FROM products;
+      - SELECT name FROM products;
+    hints:
+      - Put the column names between SELECT and FROM, separated by a comma.
+      - Column order in the result follows the order you write them.
+      - SELECT name, ... FROM products;
+  cents:
+    lang: sql
+    prompt: |
+      Payment systems often store money as whole cents. Show each order's `order_id`
+      and its amount in cents, in a column named exactly `amount_cents`.
+    starter: |
+      SELECT order_id,
+      FROM orders;
+    solution: SELECT order_id, amount * 100 AS amount_cents FROM orders;
+    alternates:
+      - SELECT order_id, 100 * amount AS amount_cents FROM orders;
+      - SELECT order_id, amount * 100 amount_cents FROM orders;
+    wrong:
+      - SELECT order_id, amount * 100 FROM orders;
+      - SELECT order_id, amount AS amount_cents FROM orders;
+      - SELECT order_id, amount / 100 AS amount_cents FROM orders;
+    columnNames: strict
+    hints:
+      - 1 unit = 100 cents, so multiply.
+      - Compute it with `amount * 100`, then name it with `AS`.
+      - SELECT order_id, amount * 100 AS ... FROM orders;
+
+quiz:
+  - id: width-not-length
+    type: mcq
+    prompt: You change `SELECT *` to `SELECT name`. What happens to the number of rows?
+    options:
+      - text: It stays the same — only the columns change.
+        correct: true
+        why: SELECT picks columns. Filtering rows is WHERE's job (next lesson).
+      - text: It drops to one row.
+        why: You'd need an aggregate like COUNT(*) to collapse rows into one.
+      - text: Rows with an empty name disappear.
+        why: SELECT doesn't filter anything; every row is still returned.
+  - id: alias
+    type: mcq
+    prompt: What does `AS` do in `SELECT amount * 100 AS amount_cents`?
+    options:
+      - text: Names the computed column in the result.
+        correct: true
+        why: It's an alias — it changes the label in the output, not the data in the table.
+      - text: Creates a new column in the orders table.
+        why: SELECT never changes tables. The column only exists in this result.
+      - text: Converts the value to a different type.
+        why: Converting types is CAST(...), covered in S2.
+  - id: quotes
+    type: mcq
+    prompt: Which is a text value in SQL?
+    options:
+      - text: "`'India'`"
+        correct: true
+        why: Single quotes mean a string literal.
+      - text: '`"India"`'
+        why: Double quotes mean an *identifier* — a column or table name. `"India"` would look for a column called India.
+      - text: "`India`"
+        why: Without quotes, SQL treats it as a column name.
+  - id: case
+    type: mcq
+    prompt: Are `select name from customers` and `SELECT name FROM customers` the same query?
+    options:
+      - text: Yes — keywords aren't case-sensitive. Upper-case keywords are just a readability convention.
+        correct: true
+        why: Most teams write keywords in upper case so the structure stands out, but the database doesn't care.
+      - text: No — keywords must be upper case.
+        why: SQL keywords are case-insensitive in every major database.
+      - text: No — the lower-case version only works in DuckDB.
+        why: Case-insensitive keywords are standard SQL.
+  - id: select-star-risk
+    type: multi
+    prompt: Why do production pipelines avoid `SELECT *`? Select all that apply.
+    options:
+      - text: If the source adds a column, the pipeline's output changes shape without anyone deciding it should.
+        correct: true
+        why: Downstream tables and dashboards can break or silently gain sensitive columns.
+      - text: In columnar warehouses, reading fewer columns scans less data — faster and cheaper.
+        correct: true
+        why: BigQuery, Snowflake and DuckDB store each column separately, so unused columns cost real money to read.
+      - text: SELECT * returns rows in random order.
+        why: Row order is never guaranteed without ORDER BY, whatever columns you choose.
+
+cards:
+  - id: select-vs-where
+    front: SELECT changes the result's ___, WHERE changes its ___.
+    back: SELECT changes the **columns** (width); WHERE changes the **rows** (length).
+  - id: quotes-card
+    front: In SQL, what do single quotes and double quotes mean?
+    back: "'single' = a text value. \"double\" = an identifier (column or table name)."
+  - id: as-card
+    front: What does `AS` do in a SELECT list?
+    back: Gives the result column a name (an alias). It doesn't change the table.
+
+practice:
+  - url: https://sqlbolt.com/lesson/select_queries_introduction
+    site: SQLBolt
+    title: "Lesson 1: SELECT queries (all tasks)"
+    difficulty: easy
+    free: true
+    estMinutes: 10
+    lastChecked: '2026-11-07'
+  - url: https://pgexercises.com/questions/basic/selectspecific.html
+    site: PostgreSQL Exercises
+    title: Retrieve specific columns from a table
+    difficulty: easy
+    free: true
+    estMinutes: 5
+    dialect: PostgreSQL
+    lastChecked: '2026-11-07'

@@ -1,0 +1,142 @@
+id: sql.s0.tables-and-pipelines
+title: Tables, and where SQL lives in a pipeline
+summary: What a relational table actually is, the two kinds of databases a data engineer moves data between, and your first query.
+track: sql
+module: S0
+order: 1
+version: 1
+estMinutes: 20
+where: browser
+objectives:
+  - Describe a table in terms of rows, columns, types and a primary key
+  - Tell an OLTP database from an OLAP one, and say why pipelines move data between them
+  - Name the raw → staged → mart layers of a pipeline
+  - Run a SELECT query and read its result
+
+worked:
+  first:
+    lang: sql
+    code: |
+      SELECT *
+      FROM customers
+      LIMIT 5;
+    predict:
+      prompt: The `customers` table has 20 rows. How many rows will this query return?
+      options:
+        - '5'
+        - '20'
+        - Every row in the whole database
+      answer: 0
+      explain: "`LIMIT 5` caps the result at five rows. `*` means *every column*, not every row."
+
+exercises:
+  all-products:
+    lang: sql
+    prompt: |
+      Show **every column** of **every row** in the `products` table.
+    starter: |
+      -- your query here
+    solution: SELECT * FROM products;
+    alternates:
+      - SELECT product_id, name, category, price FROM products;
+      - select * from products
+    wrong:
+      - SELECT * FROM customers;
+      - SELECT name, price FROM products;
+      - SELECT * FROM products LIMIT 5;
+    hints:
+      - The query has two parts — what to show, and which table to read from.
+      - "`SELECT *` means every column. `FROM table_name` says where the rows come from."
+      - "SELECT * FROM ..."
+
+quiz:
+  - id: oltp-olap
+    type: mcq
+    prompt: An online shop's checkout writes one order at a time, thousands of times a minute. Which kind of database is that?
+    options:
+      - text: OLTP — many small reads and writes of individual rows.
+        correct: true
+        why: Online Transaction Processing systems (PostgreSQL, MySQL) power apps. They're optimised for touching a few rows quickly.
+      - text: OLAP — big scans and aggregations for analysis.
+        why: OLAP warehouses (BigQuery, Snowflake, DuckDB) are optimised for reading millions of rows to answer questions, not for single-row writes.
+      - text: Neither; shops store orders in CSV files.
+        why: Files show up in pipelines, but the live app writes to a transactional database.
+  - id: why-pipelines
+    type: mcq
+    prompt: Why do data engineers copy data out of the app database into a warehouse instead of running analysis directly on it?
+    options:
+      - text: Heavy analytical queries would slow down the app, and the warehouse is built for large scans across many sources.
+        correct: true
+        why: This is the core reason pipelines exist — separate the workload that serves customers from the workload that answers questions.
+      - text: SQL doesn't work on app databases.
+        why: SQL works on both. The difference is what each system is optimised for.
+      - text: Warehouses are always cheaper to store data in.
+        why: Cost varies a lot; the main driver is workload separation and combining sources.
+  - id: primary-key
+    type: mcq
+    prompt: What does it mean that `customer_id` is the **primary key** of `customers`?
+    options:
+      - text: Every row has a value for it, and no two rows share the same value — it identifies exactly one customer.
+        correct: true
+        why: A primary key is unique and not NULL. Other tables (like orders) point at it to say "this order belongs to that customer".
+      - text: It's the first column in the table.
+        why: Column position doesn't matter; a primary key is a constraint, not a position.
+      - text: The table is sorted by it.
+        why: SQL tables have no guaranteed order. You ask for an order with ORDER BY.
+  - id: layers
+    type: mcq
+    prompt: In a typical pipeline, what's the order of layers from source to dashboard?
+    options:
+      - text: raw → staged → mart
+        correct: true
+        why: Raw is an untouched copy of the source, staged is cleaned and typed, and marts are shaped for a specific business question.
+      - text: mart → staged → raw
+        why: That's backwards — marts are the final, most refined layer.
+      - text: staged → raw → mart
+        why: Raw always comes first so you can re-process from the original data if a later step had a bug.
+  - id: declarative
+    type: mcq
+    prompt: SQL is called *declarative*. What does that mean for you when you write a query?
+    options:
+      - text: You describe the result you want; the database decides how to get it.
+        correct: true
+        why: You never write loops in SQL. The engine's optimiser picks the plan — scans, indexes, join order.
+      - text: You must declare every variable before using it.
+        why: That's about variables in programming languages; SQL queries don't have them.
+      - text: You list the exact steps the database should take, in order.
+        why: That's *imperative* programming, like a JavaScript for-loop.
+
+cards:
+  - id: oltp-vs-olap
+    front: OLTP vs OLAP — one line each.
+    back: "OLTP: an app database doing many small reads/writes of single rows (PostgreSQL). OLAP: an analytics warehouse doing big scans and aggregations (BigQuery, Snowflake, DuckDB)."
+  - id: pk
+    front: What two rules does a primary key enforce?
+    back: Unique (no two rows share it) and NOT NULL (every row has one).
+  - id: pipeline-layers
+    front: Name the three classic pipeline layers and what each holds.
+    back: "**raw** — an untouched copy of the source; **staged** — cleaned, typed, deduplicated; **mart** — shaped for one business question."
+
+practice:
+  - url: https://sqlbolt.com/lesson/select_queries_introduction
+    site: SQLBolt
+    title: "Lesson 1: SELECT queries"
+    difficulty: easy
+    free: true
+    estMinutes: 10
+    lastChecked: '2026-11-07'
+  - url: https://pgexercises.com/questions/basic/selectall.html
+    site: PostgreSQL Exercises
+    title: Retrieve everything from a table
+    difficulty: easy
+    free: true
+    estMinutes: 5
+    dialect: PostgreSQL
+    lastChecked: '2026-11-07'
+  - url: https://www.datacamp.com/blog/oltp-vs-olap
+    site: DataCamp
+    title: "Reading: OLTP vs OLAP"
+    difficulty: easy
+    free: true
+    estMinutes: 10
+    lastChecked: '2026-11-07'

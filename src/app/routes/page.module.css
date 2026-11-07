@@ -1,0 +1,49 @@
+/* Shared page scaffolding */
+.page {
+  width: 100%;
+  max-width: var(--wide-w);
+  margin: 0 auto;
+  padding: clamp(var(--s6), 5vw, var(--s8)) clamp(var(--s4), 4vw, var(--s7)) var(--s9);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s7);
+  align-content: start;
+}
+.narrow {
+  max-width: calc(var(--content-w) + 2 * var(--s7));
+}
+.head {
+  display: grid;
+  gap: var(--s3);
+}
+.lede {
+  color: var(--muted);
+  font-size: var(--fs-prose);
+  max-width: 40rem;
+}
+.section {
+  display: grid;
+  gap: var(--s4);
+}
+.sectionHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--s3);
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: var(--s3);
+}
+.sectionHead h2 {
+  font-size: var(--fs-h3);
+}
+.empty {
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-lg);
+  padding: var(--s6);
+  text-align: center;
+  color: var(--muted);
+  display: grid;
+  gap: var(--s3);
+  justify-items: center;
+}

@@ -1,0 +1,48 @@
+Most of this course runs in your browser. Real data work happens on your own machine, though, so this lab sets up the tools you'll grow into. Do it once, at your own pace. Your ticks are saved, so you can stop halfway.
+
+## Why these four tools
+
+| Tool | What it's for | The JS world equivalent |
+|---|---|---|
+| **Terminal** | Running everything else | Same terminal you run `npm` in |
+| **Git** | Versioning code: SQL models, pipelines, configs | Same Git |
+| **uv** | Installing Python and managing project dependencies | `nvm` + `npm` in one tool |
+| **DuckDB** | A fast SQL engine that reads files directly | No real equivalent; think "SQLite for analytics" |
+
+<JsBridge>
+
+```bash
+# JavaScript project
+npm init -y
+npm install lodash
+node index.js
+```
+
+```bash
+# Python project with uv
+uv init my-project
+uv add pandas
+uv run main.py
+```
+
+<Breaks>
+Python has no `node_modules` folder in your project. uv creates a hidden `.venv` folder that holds the environment, and `uv run` uses it for you. If you call plain `python` outside `uv run`, you might get a *different* Python that doesn't have your packages.
+</Breaks>
+
+</JsBridge>
+
+## The lab
+
+Work through the list top to bottom. Each step has a command to paste and a way to check that it worked.
+
+<Checklist />
+
+<Callout kind="tip">
+If a command fails, read the **last** line of the error first. That's usually the real problem, such as "command not found" or "permission denied". Paste the error into a search engine before you change anything.
+</Callout>
+
+<Callout kind="dialect">
+This app's SQL runs on **DuckDB-WASM** (DuckDB compiled to run in the browser). The `duckdb` you just installed is the same engine, so anything you write here works there too. Most of it also works in PostgreSQL. When it doesn't, the lesson says so.
+</Callout>
+
+When every box is ticked, take the short quiz below. Then you're ready for **S0**.

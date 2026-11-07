@@ -1,0 +1,90 @@
+.title {
+  font-size: var(--fs-h3);
+}
+.question {
+  border: none;
+  border-top: 1px solid var(--line);
+  margin: 0;
+  padding: var(--s5) 0 0;
+  display: grid;
+  gap: var(--s3);
+  min-width: 0;
+  animation: df-rise var(--dur-ui) var(--ease-out) both;
+}
+.legend {
+  padding: 0;
+  display: grid;
+  gap: var(--s2);
+  margin-bottom: var(--s3);
+}
+.prompt {
+  font-size: var(--fs-prose);
+  font-weight: 500;
+}
+.prompt code,
+.option code {
+  font-size: 0.9em;
+  padding: 1px 5px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+.options {
+  display: grid;
+  gap: var(--s2);
+}
+.option {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  transition: border-color var(--dur-hover) var(--ease-inout), background-color var(--dur-hover) var(--ease-inout);
+}
+.option:hover:not(.right):not(.wrong):not(.idle) {
+  border-color: var(--line-strong);
+}
+.option:has(input:checked):not(.right):not(.wrong) {
+  border-color: var(--track);
+  background: color-mix(in srgb, var(--track) 8%, transparent);
+}
+.optLabel {
+  display: flex;
+  gap: var(--s3);
+  align-items: flex-start;
+  padding: var(--s3) var(--s4);
+  cursor: pointer;
+}
+.optLabel input {
+  margin-top: 0.3em;
+  accent-color: var(--track);
+}
+.why {
+  padding: 0 var(--s4) var(--s3) calc(var(--s4) + 1.6em);
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+.tagRight {
+  color: var(--mastery);
+  font-weight: 600;
+}
+.tagWrong {
+  color: var(--error);
+  font-weight: 600;
+}
+.right {
+  border-color: color-mix(in srgb, var(--mastery) 70%, transparent);
+}
+.wrong {
+  border-color: color-mix(in srgb, var(--error) 70%, transparent);
+}
+.idle {
+  opacity: 0.6;
+}
+.resRight {
+  color: var(--mastery);
+  font-weight: 500;
+}
+.resWrong {
+  color: var(--de);
+  font-weight: 500;
+}
+.score {
+  color: var(--text);
+}

@@ -1,0 +1,68 @@
+## Why it matters
+
+You've probably worked with data as JSON from an API: an array of objects. A relational database stores the same idea as a **table**. Each object is a **row**, each key is a **column**, and every value in a column has the same type. Data engineering is mostly moving tables like these from where they're *created* to where they're *analysed*, and cleaning them on the way.
+
+<JsBridge>
+
+```js
+// What a front-end sees
+const customers = [
+  { customer_id: 1, name: "Aarav Sharma", country: "India" },
+  { customer_id: 2, name: "Priya Patel", country: "India" },
+];
+```
+
+```sql
+-- The same data as a table
+SELECT customer_id, name, country
+FROM customers;
+```
+
+<Breaks>
+An array has an order and can hold objects of any shape. A table is a **set of rows with no built-in order**, and every row has exactly the same columns and types. If you want an order, you have to ask for it, which comes in a later lesson.
+</Breaks>
+
+</JsBridge>
+
+## Two kinds of database
+
+| | OLTP (app database) | OLAP (warehouse) |
+|---|---|---|
+| Typical work | Insert one order, update one address | Total revenue by country for 3 years |
+| Rows touched per query | A handful | Millions |
+| Examples | PostgreSQL, MySQL | BigQuery, Snowflake, DuckDB |
+| Who uses it | The app | Analysts, dashboards, ML |
+
+A data pipeline copies data from OLTP systems (plus files and APIs) into an OLAP warehouse in layers:
+
+1. **raw**: an untouched copy of the source, so you can always start again.
+2. **staged**: cleaned. Types are fixed, duplicates removed, names consistent.
+3. **mart**: shaped to answer one business question, such as "daily revenue by country".
+
+SQL is the language for every step after the data lands, which is why it's the first thing to learn.
+
+## Meet the `shop` database
+
+Every SQL lesson uses the same small online store. It's an OLTP-style database with three tables:
+
+<Schema />
+
+<Callout kind="tip">
+You can open these tables from any exercise with **Show tables**. You never need to memorise column names.
+</Callout>
+
+## Your first query
+
+`SELECT` chooses the columns, `FROM` chooses the table, and `*` means "all columns". Make a prediction first, then run it.
+
+<Worked id="first" />
+
+Notice the result has **column types** under each header: `int`, `text`, `date`, `bool`. Types matter: you'll compare dates with dates and do arithmetic on numbers, never on text.
+
+## Your turn
+
+<Exercise id="all-products" />
+
+<Callout kind="de">
+In real pipelines, `SELECT *` is fine for exploring but risky in production code. If someone adds a column to the source table, a `SELECT *` pipeline silently changes shape. Production queries name their columns.
+</Callout>

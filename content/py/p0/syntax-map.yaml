@@ -1,0 +1,197 @@
+id: py.p0.syntax-map
+title: "Python for JS devs: the syntax map"
+summary: Translate what you already know — variables, numbers, strings, printing — and learn the handful of places where Python deliberately differs from JavaScript.
+track: py
+module: P0
+order: 1
+version: 1
+estMinutes: 20
+where: browser
+objectives:
+  - Write variables, numbers, strings and f-strings in Python
+  - Predict Python's arithmetic (/, //, %, **)
+  - Explain why Python refuses "text" + 42 and fix it
+  - Recognise None, True and False and indentation-based blocks
+
+worked:
+  basics:
+    lang: python
+    code: |
+      city = "Mumbai"          # no let / const / var
+      orders = 3
+      avg_value = 114.49
+
+      print(f"{city}: {orders} orders, avg {avg_value}")
+      print(type(orders), type(avg_value), type(city))
+    note: An f-string (`f"..."`) is Python's template literal — `{expr}` instead of `${expr}`. `type()` shows a value's type, like `typeof` but more precise.
+  arithmetic:
+    lang: python
+    code: |
+      print(7 / 2, 7 // 2, 7 % 2, 2 ** 3)
+    predict:
+      prompt: What does this print?
+      options:
+        - "`3.5 3 1 8`"
+        - "`3 3 1 6`"
+        - "`3.5 3.5 1 8`"
+      answer: 0
+      explain: "`/` always gives a float (3.5). `//` is floor division (3). `%` is remainder (1). `**` is power (2³ = 8). `print` separates its arguments with spaces."
+  no-coercion:
+    lang: python
+    code: |
+      total = 42
+      label = "Total: " + total
+      print(label)
+    expectError: true
+    note: 'JavaScript would quietly give "Total: 42". Python refuses to guess and raises a TypeError. Fix it with `f"Total: {total}"` or `"Total: " + str(total)`.'
+
+exercises:
+  receipt:
+    lang: python
+    prompt: |
+      Using the two variables given, print exactly this line:
+
+      `3 x 249.5 = 748.5`
+
+      Compute the total from the variables — don't type 748.5 yourself.
+    starter: |
+      price = 249.5
+      quantity = 3
+      # print: 3 x 249.5 = 748.5
+    solution: |
+      price = 249.5
+      quantity = 3
+      print(f"{quantity} x {price} = {price * quantity}")
+    alternates:
+      - |
+        price = 249.5
+        quantity = 3
+        print(str(quantity) + " x " + str(price) + " = " + str(price * quantity))
+      - |
+        price = 249.5
+        quantity = 3
+        total = price * quantity
+        print(quantity, "x", price, "=", total)
+    wrong:
+      - |
+        price = 249.5
+        quantity = 3
+        print(f"{quantity} x {price} = {price + quantity}")
+      - |
+        price = 249.5
+        quantity = 3
+        print("quantity x price = price * quantity")
+    stdout: 3 x 249.5 = 748.5
+    hints:
+      - An f-string lets you drop variables (and expressions) straight into text.
+      - 'Inside `f"..."`, anything in `{ }` is evaluated — including `{price * quantity}`.'
+      - print(f"{quantity} x {price} = {...}")
+  parse-number:
+    lang: python
+    prompt: |
+      Data from CSV files and APIs often arrives as **text**. `raw` holds the text `"42"`.
+      Convert it to a whole number, add 8, and print the result — it should print `50`.
+    starter: |
+      raw = "42"   # text, e.g. read from a CSV
+    solution: |
+      raw = "42"
+      print(int(raw) + 8)
+    alternates:
+      - |
+        raw = "42"
+        number = int(raw)
+        print(number + 8)
+    wrong:
+      - |
+        raw = "42"
+        print(raw + 8)
+      - |
+        raw = "42"
+        print(raw + "8")
+      - |
+        raw = "42"
+        print(float(raw) + 8)
+    stdout: '50'
+    hints:
+      - Python won't add text and a number — convert first.
+      - "`int(\"42\")` turns text into an integer. (`float()` would give `50.0`, not `50`.)"
+      - print(int(raw) + ...)
+
+quiz:
+  - id: floor-div
+    type: mcq
+    prompt: What is `9 // 2` in Python?
+    options:
+      - text: "`4`"
+        correct: true
+        why: "`//` is floor division — it drops the fractional part."
+      - text: "`4.5`"
+        why: That's `9 / 2`. `/` always returns a float in Python 3.
+      - text: A syntax error — `//` starts a comment.
+        why: In JS it would. Python comments start with `#`.
+  - id: none-null
+    type: mcq
+    prompt: What's Python's equivalent of JavaScript's `null`?
+    options:
+      - text: "`None`"
+        correct: true
+        why: Capitalised. There's no separate `undefined` — a missing variable is a NameError, a missing dict key is a KeyError.
+      - text: "`null`"
+        why: That's a NameError in Python.
+      - text: "`undefined`"
+        why: Python has no undefined.
+  - id: booleans
+    type: mcq
+    prompt: Which line is valid Python?
+    options:
+      - text: "`is_active = True`"
+        correct: true
+        why: Booleans are capitalised — True and False.
+      - text: "`const is_active = true`"
+        why: No `const`, and `true` must be `True`.
+      - text: "`is_active = true;`"
+        why: Lower-case `true` is a NameError. Semicolons are allowed but nobody uses them.
+  - id: blocks
+    type: mcq
+    prompt: How does Python know which lines belong inside an `if`?
+    options:
+      - text: By indentation — the lines indented under the line ending in `:`.
+        correct: true
+        why: Indentation is the syntax. Mixing indent sizes inside one block is an IndentationError. Use 4 spaces.
+      - text: By curly braces.
+        why: Python doesn't use braces for blocks.
+      - text: By an `end` keyword.
+        why: That's Ruby. Python uses indentation.
+  - id: plusplus
+    type: multi
+    prompt: Which of these increase `count` by one in Python? Select all.
+    options:
+      - text: "`count += 1`"
+        correct: true
+        why: The idiomatic way.
+      - text: "`count = count + 1`"
+        correct: true
+        why: Also fine, just longer.
+      - text: "`count++`"
+        why: Python has no `++` or `--` operators — it's a syntax error.
+
+cards:
+  - id: div-card
+    front: In Python, what do `/`, `//`, `%` and `**` do?
+    back: "`/` true division (always float), `//` floor division, `%` remainder, `**` power."
+  - id: fstring-card
+    front: Python's version of the JS template literal `${name} has ${n} orders`?
+    back: 'An f-string: `f"{name} has {n} orders"`.'
+  - id: coercion-card
+    front: '`"Total: " + 42` in Python?'
+    back: 'TypeError — Python never converts implicitly. Use `f"Total: {42}"` or `str(42)`.'
+
+practice:
+  - url: https://exercism.org/tracks/python/exercises/guidos-gorgeous-lasagna
+    site: Exercism
+    title: Guido's Gorgeous Lasagna (variables, functions, docstrings)
+    difficulty: easy
+    free: true
+    accountRequired: true
+    estMinutes: 20
+    lastChecked: '2026-11-07'

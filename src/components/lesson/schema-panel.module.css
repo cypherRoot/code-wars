@@ -1,0 +1,46 @@
+.grid {
+  display: grid;
+  gap: var(--s3);
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+}
+.table {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--s3) var(--s4);
+  background: var(--surface);
+}
+.name {
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+  color: var(--sql-text);
+  font-weight: 600;
+}
+.desc {
+  color: var(--muted);
+  font-size: 0.8125rem;
+  margin: var(--s1) 0 var(--s2);
+}
+.cols {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+  font-size: 0.8125rem;
+}
+.cols li {
+  display: flex;
+  gap: var(--s2);
+  flex-wrap: wrap;
+  align-items: baseline;
+}
+.type {
+  font-family: var(--font-mono);
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.note {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-style: italic;
+}

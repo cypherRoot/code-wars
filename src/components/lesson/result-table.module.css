@@ -1,0 +1,68 @@
+.wrap {
+  min-width: 0;
+}
+.scroll {
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.table {
+  border-collapse: collapse;
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+}
+.table th,
+.table td {
+  padding: 6px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+.table th {
+  position: sticky;
+  top: 0;
+  background: var(--surface-2);
+  font-weight: 500;
+  vertical-align: bottom;
+}
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+.colName {
+  display: block;
+  color: var(--text);
+}
+.colType {
+  display: block;
+  font-size: 0.6875rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.num {
+  text-align: right !important;
+  font-variant-numeric: tabular-nums;
+}
+.null {
+  color: var(--muted);
+  font-style: italic;
+}
+.bool {
+  color: var(--tok-number);
+}
+.empty {
+  color: var(--muted);
+  text-align: center !important;
+  padding: var(--s4) !important;
+}
+.meta {
+  margin-top: var(--s2);
+}
+.missing .scroll {
+  border-color: color-mix(in srgb, var(--mastery) 50%, transparent);
+}
+.extra .scroll {
+  border-color: color-mix(in srgb, var(--error) 60%, transparent);
+}

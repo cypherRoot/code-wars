@@ -1,0 +1,18 @@
+.progress {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+}
+.meter {
+  flex: 1;
+  height: 3px;
+  background: var(--line);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.meter span {
+  display: block;
+  height: 100%;
+  background: var(--mastery);
+  transition: width var(--dur-ui) var(--ease-out);
+}

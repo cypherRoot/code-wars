@@ -1,0 +1,64 @@
+## Why it matters
+
+Almost all data in a pipeline passes through these four shapes at some point. A JSON API response becomes a **list of dicts**. A database row comes back as a **tuple**. "Have I seen this ID before?" is a **set**. You'll use them all daily.
+
+<JsBridge>
+
+```js
+const amounts = [114.49, 29.99];        // Array
+const customer = { name: "Priya" };     // Object
+const seen = new Set([101, 102]);       // Set
+amounts.push(42.5);
+customer.city ?? "unknown";
+```
+
+```python
+amounts = [114.49, 29.99]               # list
+customer = {"name": "Priya"}            # dict
+seen = {101, 102}                       # set
+amounts.append(42.5)
+customer.get("city", "unknown")
+```
+
+<Breaks>
+Dict keys need quotes (`{"name": ...}`), and you read them with `customer["name"]`, never `customer.name`. Reading a missing key with brackets **raises an error** instead of giving `undefined`. Also, `{}` is an empty **dict**. An empty set is `set()`.
+</Breaks>
+
+</JsBridge>
+
+## Lists
+
+<Worked id="lists" />
+
+Slicing `xs[start:stop]` takes items from `start` up to, **but not including**, `stop`. Leave either side out to go to the edge: `xs[:3]` gives the first three, `xs[-2:]` the last two.
+
+## Dicts
+
+<Worked id="dict-get" />
+
+## Sets and tuples
+
+<Worked id="sets-tuples" />
+
+| Need | Use |
+|---|---|
+| An ordered sequence you'll add to | `list` |
+| Look things up by a key | `dict` |
+| A fixed record, like a row from a database | `tuple` |
+| Uniqueness, or fast "have I seen it?" checks | `set` |
+
+## The aliasing trap
+
+<Worked id="aliasing" />
+
+## Your turn
+
+These exercises use a **function** with `def`. It's the next module's topic, but the shape is simple: `def name(args):`, an indented body, and `return` to hand back the value. The checker calls your function with several inputs.
+
+<Exercise id="last-two" />
+
+<Exercise id="country-of" />
+
+<Callout kind="de">
+Real API records are messy: optional fields go missing, and keys arrive as `null`. Data engineers read nested JSON defensively with `.get()` and defaults, then validate the shape with a library such as Pydantic, which comes later in P8.
+</Callout>

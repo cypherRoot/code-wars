@@ -1,0 +1,141 @@
+id: found.f0.workbench
+title: Set up your data workbench
+summary: Install the handful of tools every data engineer uses daily — a terminal you're comfortable in, Git, Python via uv, and DuckDB — and prove each one works.
+track: found
+module: F0
+order: 1
+version: 1
+estMinutes: 40
+where: local
+objectives:
+  - Move around the file system and run programs from a terminal
+  - Install Python with uv and run a script in a project environment
+  - Run a SQL query against a CSV file with the DuckDB command line
+  - Save work in a Git repository with a first commit
+
+checklist:
+  - id: terminal
+    text: Open a terminal and find out where you are, then make a folder for this course and move into it.
+    command: |
+      pwd
+      mkdir -p ~/dataforge && cd ~/dataforge
+      ls -la
+    verify: pwd prints a path ending in /dataforge.
+  - id: git
+    text: Make sure Git is installed and tell it who you are (this name goes on your commits).
+    command: |
+      git --version || sudo pacman -S git
+      git config --global user.name "Your Name"
+      git config --global user.email "you@example.com"
+    verify: git --version prints a version number.
+  - id: uv
+    text: Install uv, the fast Python package and project manager, then install a Python with it.
+    command: |
+      curl -LsSf https://astral.sh/uv/install.sh | sh
+      # open a new terminal so uv is on your PATH, then:
+      uv python install
+      uv --version
+    verify: uv --version prints a version number.
+  - id: project
+    text: Create a Python project and run a script inside its own environment.
+    command: |
+      cd ~/dataforge
+      uv init hello-de
+      cd hello-de
+      uv run main.py
+    verify: You see "Hello from hello-de!" printed.
+  - id: duckdb
+    text: Install the DuckDB command line, then query a CSV file directly — no import step.
+    command: |
+      curl https://install.duckdb.org | bash
+      # open a new terminal, then:
+      cd ~/dataforge
+      printf 'city,orders\nMumbai,3\nLondon,2\nBerlin,1\n' > orders.csv
+      duckdb -c "SELECT city, orders FROM 'orders.csv' ORDER BY orders DESC;"
+    verify: A small table with Mumbai on the first row.
+  - id: commit
+    text: Turn the folder into a Git repository and make your first commit.
+    command: |
+      cd ~/dataforge
+      git init
+      git add .
+      git commit -m "Set up my data workbench"
+      git log --oneline
+    verify: git log shows one commit.
+
+quiz:
+  - id: uv-run
+    type: mcq
+    prompt: What does `uv run main.py` do that plain `python main.py` doesn't?
+    options:
+      - text: It runs the script inside the project's own environment, installing the project's dependencies first if needed.
+        correct: true
+        why: uv keeps each project's packages separate, so projects can't break each other — the Python equivalent of a per-project node_modules.
+      - text: It compiles the script to make it faster.
+        why: uv manages environments and packages; it doesn't compile your code.
+      - text: It uploads the script to a server and runs it there.
+        why: Everything runs locally on your machine.
+  - id: duckdb-csv
+    type: mcq
+    prompt: In `duckdb -c "SELECT * FROM 'orders.csv'"`, what is DuckDB doing with the CSV file?
+    options:
+      - text: Reading it directly as if it were a table, working out the columns and types itself.
+        correct: true
+        why: DuckDB can query CSV, Parquet and JSON files in place — handy for exploring raw files before loading them anywhere.
+      - text: Converting it into a permanent database file first.
+        why: No database file is created unless you ask for one; it reads the CSV on the fly.
+      - text: Nothing — SQL can only query tables that were created with CREATE TABLE.
+        why: That's true of many databases, but DuckDB is built to query files directly.
+  - id: git-commit
+    type: mcq
+    prompt: Why commit your work to Git even when you work alone?
+    options:
+      - text: Each commit is a snapshot you can return to, and Git is how data teams review and deploy pipeline code.
+        correct: true
+        why: Version control is non-negotiable in data engineering — dbt projects, Airflow DAGs and SQL models all live in Git.
+      - text: Git makes your scripts run faster.
+        why: Git tracks changes; it has nothing to do with speed.
+      - text: Git automatically backs up your database tables.
+        why: Git tracks files (code, small configs), not the data inside databases.
+  - id: where-am-i
+    type: mcq
+    prompt: Which command tells you which folder your terminal is currently in?
+    options:
+      - text: "`pwd`"
+        correct: true
+        why: pwd = print working directory.
+      - text: "`ls`"
+        why: ls lists what's *inside* the current folder, not where it is.
+      - text: "`cd`"
+        why: cd changes folder; on its own it takes you to your home folder.
+
+cards:
+  - id: uv-purpose
+    front: What are the two jobs uv does for a Python project?
+    back: It installs Python versions, and it manages each project's own environment and dependencies (`uv add pkg`, `uv run script.py`).
+  - id: duckdb-files
+    front: How do you query a CSV file with DuckDB without importing it?
+    back: "Put the file path where a table name would go: `SELECT * FROM 'orders.csv';`"
+
+practice:
+  - url: https://missing.csail.mit.edu/2020/course-shell/
+    site: MIT Missing Semester
+    title: "Lecture 1: The shell"
+    difficulty: easy
+    free: true
+    estMinutes: 45
+    lastChecked: '2026-11-07'
+  - url: https://learngitbranching.js.org/
+    site: Learn Git Branching
+    title: Interactive Git levels (do "Introduction Sequence")
+    difficulty: easy
+    free: true
+    estMinutes: 30
+    lastChecked: '2026-11-07'
+  - url: https://docs.astral.sh/uv/getting-started/installation/
+    site: uv docs
+    title: Installing uv (if the one-liner didn't work)
+    difficulty: easy
+    free: true
+    estMinutes: 10
+    lastChecked: '2026-11-07'
